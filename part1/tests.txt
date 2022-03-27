@@ -1,0 +1,34 @@
+expr -> expr + term 
+    | expr - term
+    | term
+
+term -> term * factor
+    | term / factor 
+    | factor
+
+factor -> number
+    | id
+
+
+expr -> term expr2
+expr2-> + term expr2
+    | - term expr2
+    | e
+
+term -> factor term2
+term2 -> * factor term2
+    | / factor term2
+    | e
+factor -> number
+    | id
+
+first{expr} = {number, id}
+first{expr2} = {+, -, e}
+first{term} = {num, id}
+first{term2} = {*, /, e}
+
+follow{expr} = {$}
+follow{expr2} = {$}
+follow{term} = {+, -, e} => {+, -, follow{expr}} => {+, -, $}
+follow{term2} = {e} => follow{term} => {+, -, $}
+follow{factor} = {*, /, e} => {*, /, follow{term}}
