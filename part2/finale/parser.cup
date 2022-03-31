@@ -1,0 +1,60 @@
+/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
+/**
+ *  Package and Import Specifications
+ */
+import java_cup.runtime.*;
+
+/**
+ *  Usercode Components
+ */
+parser code {:
+    // Connect this parser to a scanner!
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+:}
+
+/* define how to connect to the scanner! */
+scan with {: return s.next_token(); :};
+
+/**
+ *  Symbol Lists
+ */
+
+/* Terminals (tokens returned by the scanner). */
+terminal            SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN, REVERSE, LBRAKET, RBRAKET, COMMA;
+terminal IDENT;
+terminal String    STRING_LITERAL;        // our scanner provides numbers as integers
+
+/*  Non terminals */
+non terminal            program;
+non terminal            expr_list;
+non terminal String    expr;      // used to store evaluated subexpressions
+non terminal String    args;
+
+/**
+ *  Precedence Declarations
+ */
+precedence left PLUS, MINUS, REVERSE;
+precedence left TIMES;
+precedence left UMINUS;
+
+/**
+ *  The Grammar Rules
+ */
+
+program ::= program expr_list
+            | expr_list
+;
+expr_list ::= IDENT:id LPAREN args:a RPAREN LBRAKET expr:e1 RBRAKET         {: System.out.println("public static String "+id+"("+a+")"+"{return "+e1+";}");:}
+;
+
+args ::= args:e COMMA IDENT:id                                                      {: RESULT = e+", String "+id; :}
+        | IDENT:id                                                                  {: RESULT = "String "+id;       :}
+        |                                                                           {: RESULT = ""; :}
+        ;
+
+
+expr      ::= expr:e1 PLUS expr:e2	      {: RESULT = e1+"+"+e2;           :}
+            | IDENT:a                             {: RESULT = ""+a; :}
+            | STRING_LITERAL:s                    {: RESULT = "\""+s+"\""; :}
+             ;

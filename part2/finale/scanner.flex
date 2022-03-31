@@ -1,12 +1,11 @@
-/* JFlex example: part of Java language lexer specification */
 import java_cup.runtime.*;
-/**
+
 %%
-/* -----------------Options and Declarations Section----------------- */
+/* ----------------- Options and Declarations Section----------------- */
 
 /*
-   The name of the class JFlex will create will be Lexer.
-   Will write the code to the file Lexer.java.
+   The name of the class JFlex will create will be Scanner.
+   Will write the code to the file Scanner.java.
 */
 %class Scanner
 
@@ -22,6 +21,7 @@ import java_cup.runtime.*;
    generated parser.
 */
 %cup
+%unicode
 
 /*
   Declarations
@@ -33,13 +33,16 @@ import java_cup.runtime.*;
 */
 
 %{
-StringBuffer stringBuffer = new StringBuffer();
-private Symbol symbol(int type) {
-   return new Symbol(type, yyline, yycolumn);
-}
-private Symbol symbol(int type, Object value) {
-    return new Symbol(type, yyline, yycolumn, value);
-}
+    /**
+        The following two methods create java_cup.runtime.Symbol objects
+    **/
+    StringBuffer stringBuffer = new StringBuffer();
+    private Symbol symbol(int type) {
+       return new Symbol(type, yyline, yycolumn);
+    }
+    private Symbol symbol(int type, Object value) {
+        return new Symbol(type, yyline, yycolumn, value);
+    }
 %}
 
 /*
@@ -49,7 +52,6 @@ private Symbol symbol(int type, Object value) {
   in the Lexical Rules Section.
 */
 
-
 /* A line terminator is a \r (carriage return), \n (line feed), or
    \r\n. */
 LineTerminator = \r|\n|\r\n
@@ -57,22 +59,34 @@ LineTerminator = \r|\n|\r\n
 /* White space is a line terminator, space, tab, or line feed. */
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
+/* A literal integer is is a number beginning with a number between
+   one and nine followed by zero or more numbers between zero and nine
+   or just a zero.  */
 %state STRING
+
+Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
 
 %%
 /* ------------------------Lexical Rules Section---------------------- */
 
 <YYINITIAL> {
 /* operators */
- "+"            { return symbol(sym.PLUS); }
- "-"            { return symbol(sym.MINUS); }
- "*"            { return symbol(sym.TIMES); }
- "("            { return symbol(sym.LPAREN); }
- ")"            { return symbol(sym.RPAREN); }
- ";"            { return symbol(sym.SEMI); }
- \"             { stringBuffer.setLength(0); yybegin(STRING); }
- {WhiteSpace}   { /* just skip what was found, do nothing */ }
+ "reverse"      { return symbol(sym.REVERSE); }
+ "+"      { return symbol(sym.PLUS); }
+ "-"      { return symbol(sym.MINUS); }
+ "*"      { return symbol(sym.TIMES); }
+ "("      { return symbol(sym.LPAREN); }
+ ")"      { return symbol(sym.RPAREN); }
+  "{"      { return symbol(sym.LBRAKET); }
+ "}"      { return symbol(sym.RBRAKET); }
+ ","      { return symbol(sym.COMMA); }
+ ";"      { return symbol(sym.SEMI); }
+ \"       { stringBuffer.setLength(0); yybegin(STRING); }
+{WhiteSpace} { /* just skip what was found, do nothing */ }
 }
+
+{Ident}           { return symbol(sym.IDENT, yytext()); }
+
 
 <STRING> {
       \"                             { yybegin(YYINITIAL);
@@ -85,6 +99,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
       \\\"                           { stringBuffer.append('\"'); }
       \\                             { stringBuffer.append('\\'); }
 }
+
 
 /* No token was found for the input so through an error.  Print out an
    Illegal character message with the illegal character that was found. */
