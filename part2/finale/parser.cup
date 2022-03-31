@@ -21,13 +21,17 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN, REVERSE, LBRAKET, RBRAKET, COMMA;
+terminal            SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN, REVERSE, LBRAKET, RBRAKET, COMMA, IFS, PREFIX, ELSE;
 terminal IDENT;
 terminal String    STRING_LITERAL;        // our scanner provides numbers as integers
 
 /*  Non terminals */
 non terminal            program;
 non terminal            expr_list;
+non terminal            item;
+non terminal            func_call;
+non terminal            func;
+non terminal            func_args;
 non terminal String    expr;      // used to store evaluated subexpressions
 non terminal String    args;
 
@@ -46,15 +50,28 @@ program ::= program expr_list
             | expr_list
 ;
 expr_list ::= IDENT:id LPAREN args:a RPAREN LBRAKET expr:e1 RBRAKET         {: System.out.println("public static String "+id+"("+a+")"+"{return "+e1+";}");:}
+            // | func_call
 ;
 
-args ::= args:e COMMA IDENT:id                                                      {: RESULT = e+", String "+id; :}
-        | IDENT:id                                                                  {: RESULT = "String "+id;       :}
-        |                                                                           {: RESULT = ""; :}
-        ;
+// args ::= args:e COMMA IDENT:id                                                      {: RESULT = e+", String "+id; :}
+//         | IDENT:id                                                                  {: RESULT = "String "+id;       :}
+//         |                                                                           {: RESULT = ""; :}
+// ;
 
+// expr      ::= IFS LPAREN expr PREFIX expr RPAREN expr ELSE expr
+//             | item
+// ;
 
-expr      ::= expr:e1 PLUS expr:e2	      {: RESULT = e1+"+"+e2;           :}
-            | IDENT:a                             {: RESULT = ""+a; :}
-            | STRING_LITERAL:s                    {: RESULT = "\""+s+"\""; :}
-             ;
+// item        ::= IDENT:a {: RESULT = a; :}
+//             |   STRING_LITERAL:s {: RESULT = s; :}
+// ;
+
+func_call   ::= func:a                             {: RESULT = a; :}
+;
+func        ::= IDENT:a LPAREN func_args:fa RPAREN {: RESULT = a+"("+fa+")"; :}
+;
+func_args   ::= func:a func_args:fa                {: RESULT = ""+a+fa; :}
+            |   STRING_LITERAL:s func_args:fa      {: RESULT = s + fa; :}
+            |   COMMA func_args:fa                 {: RESULT = ", "+fa; :}
+            |                                      {: RESULT = ""; :}
+            ;

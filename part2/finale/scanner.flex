@@ -72,12 +72,15 @@ Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
 <YYINITIAL> {
 /* operators */
  "reverse"      { return symbol(sym.REVERSE); }
+ "else"      { return symbol(sym.ELSE); }
+ "prefix"      { return symbol(sym.PREFIX); }
+ "if"      { return symbol(sym.IFS); }
  "+"      { return symbol(sym.PLUS); }
  "-"      { return symbol(sym.MINUS); }
  "*"      { return symbol(sym.TIMES); }
  "("      { return symbol(sym.LPAREN); }
  ")"      { return symbol(sym.RPAREN); }
-  "{"      { return symbol(sym.LBRAKET); }
+ "{"      { return symbol(sym.LBRAKET); }
  "}"      { return symbol(sym.RBRAKET); }
  ","      { return symbol(sym.COMMA); }
  ";"      { return symbol(sym.SEMI); }
