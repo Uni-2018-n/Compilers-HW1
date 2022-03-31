@@ -31,16 +31,27 @@ non terminal            expr_list;
 non terminal            item;
 non terminal            func_call;
 non terminal            func;
+// non terminal            func_args;
+non terminal            expr;      // used to store evaluated subexpressions
+non terminal            args;
+
+non terminal            expr_temp;
+non terminal            expr_temp2;
+non terminal            expr_temp3;
+non terminal            func_params;
+non terminal            func_params_2;
 non terminal            func_args;
-non terminal String    expr;      // used to store evaluated subexpressions
-non terminal String    args;
+non terminal            func_args_2;
+
 
 /**
  *  Precedence Declarations
  */
-precedence left PLUS, MINUS, REVERSE;
-precedence left TIMES;
+precedence left PLUS;
+precedence left COMMA;
 precedence left UMINUS;
+
+start with program;
 
 /**
  *  The Grammar Rules
@@ -49,29 +60,26 @@ precedence left UMINUS;
 program ::= program expr_list
             | expr_list
 ;
-expr_list ::= IDENT:id LPAREN args:a RPAREN LBRAKET expr:e1 RBRAKET         {: System.out.println("public static String "+id+"("+a+")"+"{return "+e1+";}");:}
-            // | func_call
+expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: System.out.println("public static String "+fName+"("+param1+paramN+"){return "+e+";}");:}
+            | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: System.out.println("public static String "+fName+"(){return "+e+";}");:}
+            | IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: System.out.println(fName+"("+arg1+argN+")");:}
+            | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: System.out.println(fName+"("+arg1+"("+argI+")"+argN+")"); :}
+            | IDENT:fName LPAREN                                                              RPAREN                        {: System.out.println(fName+"()");:}
 ;
-
-// args ::= args:e COMMA IDENT:id                                                      {: RESULT = e+", String "+id; :}
-//         | IDENT:id                                                                  {: RESULT = "String "+id;       :}
-//         |                                                                           {: RESULT = ""; :}
-// ;
-
-// expr      ::= IFS LPAREN expr PREFIX expr RPAREN expr ELSE expr
-//             | item
-// ;
-
-// item        ::= IDENT:a {: RESULT = a; :}
-//             |   STRING_LITERAL:s {: RESULT = s; :}
-// ;
-
-func_call   ::= func:a                             {: RESULT = a; :}
+func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next;:}
+            |                               {: RESULT = ""; :}
 ;
-func        ::= IDENT:a LPAREN func_args:fa RPAREN {: RESULT = a+"("+fa+")"; :}
+func_params_2 ::= COMMA func_params:next {: RESULT = ", "+next;:}
+            |                            {: RESULT = ""; :}
 ;
-func_args   ::= func:a func_args:fa                {: RESULT = ""+a+fa; :}
-            |   STRING_LITERAL:s func_args:fa      {: RESULT = s + fa; :}
-            |   COMMA func_args:fa                 {: RESULT = ", "+fa; :}
-            |                                      {: RESULT = ""; :}
-            ;
+func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next {: RESULT = id+"("+inside+")"+next;:}
+            | STRING_LITERAL:str func_args_2:next {: RESULT = str+next; :}
+            |                                      {: RESULT = ""; :} 
+;
+func_args_2 ::= COMMA func_args:next {: RESULT = ", "+next;:}
+            |                        {: RESULT = ""; :}
+;
+expr      ::= expr:e1 PLUS expr:e2	              {: RESULT = e1+"+"+e2;           :}
+            | IDENT:a                             {: RESULT = ""+a; :}
+            | STRING_LITERAL:s                    {: RESULT = "\""+s+"\""; :}
+;
