@@ -21,7 +21,7 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN, REVERSE, LBRAKET, RBRAKET, COMMA, IFS, PREFIX, ELSE;
+terminal            PLUS, LPAREN, RPAREN, REVERSE, LBRAKET, RBRAKET, COMMA, IFS, PREFIX, ELSE;
 terminal IDENT;
 terminal String    STRING_LITERAL;        // our scanner provides numbers as integers
 
@@ -30,15 +30,10 @@ non terminal            program;
 non terminal            expr_list;
 non terminal            expr_list2;
 non terminal            item;
-non terminal            func_call;
-non terminal            func;
 // non terminal            func_args;
 non terminal            expr;      // used to store evaluated subexpressions
-non terminal            args;
 
-non terminal            expr_temp;
 non terminal            expr_temp2;
-non terminal            expr_temp3;
 non terminal            func_params;
 non terminal            func_params_2;
 non terminal            func_args;
@@ -52,7 +47,6 @@ non terminal            program2;
  */
 precedence left PLUS;
 precedence left COMMA;
-precedence left UMINUS;
 
 start with program;
 
@@ -60,34 +54,45 @@ start with program;
  *  The Grammar Rules
  */
 program  ::= program1:p1 program2:p2          {: System.out.println("public static void main(String[] args) {\n"+p2+"}\n"+p1); :}
+            | program1:p1                     {: System.out.println(p1); :}
+            | program2:p2                     {: System.out.println("public static void main(String[] args) {\n"+p2+"}"); :}
 ;
 program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+"\n"; :}
             | expr_list:e               {: RESULT = e+"\n"; :}
 ;
 program2  ::= program2:p expr_list2:e  {: RESULT = p+"System.out.println("+e+");\n"; :}
-            | expr_list2:e             {: RESULT = "System.out.println("+e+");\n";:}
+            | expr_list2:e             {: RESULT = "System.out.println("+e+");\n"; :}
 ;
-expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"("+param1+paramN+"){return "+e+";}";:}
-            | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(){return "+e+";}";:}
+expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"("+param1+paramN+"){"+e+"}"; :}
+            | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(){"+e+"}"; :}
 ;            
-expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"("+arg1+argN+")";:}
+expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"(\""+arg1+"\""+argN+")"; :}
             | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: RESULT = fName+"("+arg1+"("+argI+")"+argN+")"; :}
-            | IDENT:fName LPAREN                                                              RPAREN                        {: RESULT = fName+"()";:}
+            | IDENT:fName LPAREN                                                              RPAREN                        {: RESULT = fName+"()"; :}
 ;
-func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next;:}
+func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next; :}
             |                               {: RESULT = ""; :}
 ;
-func_params_2 ::= COMMA func_params:next {: RESULT = ", "+next;:}
+func_params_2 ::= COMMA func_params:next {: RESULT = ", "+next; :}
             |                            {: RESULT = ""; :}
 ;
-func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next {: RESULT = id+"("+inside+")"+next;:}
-            | STRING_LITERAL:str func_args_2:next {: RESULT = str+next; :}
-            |                                      {: RESULT = ""; :} 
+func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next      {: RESULT = id+"("+inside+")"+next; :}
+            | IDENT:id func_args_2:next                                     {: RESULT = ""+id+next; :}
+            | STRING_LITERAL:str func_args_2:next                           {: RESULT = "\""+str+"\""+next; :}
+            |                                                               {: RESULT = ""; :} 
 ;
-func_args_2 ::= COMMA func_args:next {: RESULT = ", "+next;:}
-            |                        {: RESULT = ""; :}
+func_args_2 ::= COMMA func_args:next    {: RESULT = ", "+next; :}
+            |                           {: RESULT = ""; :}
 ;
-expr      ::= expr:e1 PLUS expr:e2	              {: RESULT = e1+"+"+e2;           :}
-            | IDENT:a                             {: RESULT = ""+a; :}
-            | STRING_LITERAL:s                    {: RESULT = "\""+s+"\""; :}
+expr      ::= IFS LPAREN item:i1 PREFIX item:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if("+i1+" prefix " +i2+"){"+e1+"}else{"+e2+"}"; :}
+            | expr_temp2:e                                                      {: RESULT = "return "+e+";"; :}
+;
+expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
+            | item:i                                {: RESULT = ""+i; :}
+;
+item ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
+        | IDENT:id                              {: RESULT = id; :}
+        | IDENT:id LPAREN func_args:a RPAREN    {: RESULT = id+"("+a+")"; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "reverse \""+s+"\""; :}
+        | REVERSE IDENT:id                      {: RESULT = "reverse "+id; :}
 ;
