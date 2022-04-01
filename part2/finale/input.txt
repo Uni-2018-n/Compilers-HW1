@@ -1,5 +1,15 @@
-name(test, pp){
-    "1+1"
+name()  {
+    "John+"
 }
-name(test(pp(), "1+1"), "1+1")
+
+surname() {
+    "Doe+"
+}
+
+fullname(first_name, sep, last_name) {
+    first_name + sep + last_name
+}
+
 name()
+surname()
+fullname(name(), " ", surname())

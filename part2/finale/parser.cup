@@ -28,6 +28,7 @@ terminal String    STRING_LITERAL;        // our scanner provides numbers as int
 /*  Non terminals */
 non terminal            program;
 non terminal            expr_list;
+non terminal            expr_list2;
 non terminal            item;
 non terminal            func_call;
 non terminal            func;
@@ -42,6 +43,8 @@ non terminal            func_params;
 non terminal            func_params_2;
 non terminal            func_args;
 non terminal            func_args_2;
+non terminal            program1;
+non terminal            program2;
 
 
 /**
@@ -56,15 +59,20 @@ start with program;
 /**
  *  The Grammar Rules
  */
-
-program ::= program expr_list
-            | expr_list
+program  ::= program1:p1 program2:p2          {: System.out.println("public static void main(String[] args) {\n"+p2+"}\n"+p1); :}
 ;
-expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: System.out.println("public static String "+fName+"("+param1+paramN+"){return "+e+";}");:}
-            | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: System.out.println("public static String "+fName+"(){return "+e+";}");:}
-            | IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: System.out.println(fName+"("+arg1+argN+")");:}
-            | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: System.out.println(fName+"("+arg1+"("+argI+")"+argN+")"); :}
-            | IDENT:fName LPAREN                                                              RPAREN                        {: System.out.println(fName+"()");:}
+program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+"\n"; :}
+            | expr_list:e               {: RESULT = e+"\n"; :}
+;
+program2  ::= program2:p expr_list2:e  {: RESULT = p+"System.out.println("+e+");\n"; :}
+            | expr_list2:e             {: RESULT = "System.out.println("+e+");\n";:}
+;
+expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"("+param1+paramN+"){return "+e+";}";:}
+            | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(){return "+e+";}";:}
+;            
+expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"("+arg1+argN+")";:}
+            | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: RESULT = fName+"("+arg1+"("+argI+")"+argN+")"; :}
+            | IDENT:fName LPAREN                                                              RPAREN                        {: RESULT = fName+"()";:}
 ;
 func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next;:}
             |                               {: RESULT = ""; :}
