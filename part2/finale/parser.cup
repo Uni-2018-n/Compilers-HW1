@@ -30,11 +30,14 @@ non terminal            program;
 non terminal            expr_list;
 non terminal            expr_list2;
 non terminal            item;
+non terminal            item_standalone;
 non terminal            expr;      // used to store evaluated subexpressions
 
 non terminal            expr_temp2;
 non terminal            expr_temp3;
 non terminal            expr_temp4;
+non terminal            expr_temp_standalone;
+non terminal            expr_temp3_standalone;
 non terminal            func_params;
 non terminal            func_params_2;
 non terminal            func_args;
@@ -63,13 +66,29 @@ program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+"\n"; :}
 ;
 program2  ::= program2:p expr_list2:e  {: RESULT = p+"System.out.println("+e+");\n"; :}
             | expr_list2:e             {: RESULT = "System.out.println("+e+");\n"; :}
+            | program2:p expr_temp_standalone:e  {: RESULT = p+"System.out.println("+e+");\n"; :}
+            | expr_temp_standalone:e             {: RESULT = "System.out.println("+e+");\n"; :}
 ;
+
 expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"("+param1+paramN+"){"+e+"}"; :}
             | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(){"+e+"}"; :}
 ;            
 expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"(\""+arg1+"\""+argN+")"; :}
             | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: RESULT = fName+"("+arg1+"("+argI+")"+argN+")"; :}
             | IDENT:fName LPAREN                                                              RPAREN                        {: RESULT = fName+"()"; :}
+;
+
+expr_temp_standalone ::= expr_temp_standalone:e1 PLUS expr_temp_standalone:e2	    {: RESULT = e1+"+"+e2; :}
+            | item_standalone:i                                {: RESULT = ""+i; :}
+;
+item_standalone ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
+        | IDENT:id                              {: RESULT = id; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "reverse \""+s+"\""; :}
+        | REVERSE IDENT:id                      {: RESULT = "reverse "+id; :}
+        | REVERSE expr_temp3_standalone:id                 {: RESULT = "reverse "+id; :}
+        | expr_temp3_standalone:id                         {: RESULT = id; :}
+;
+expr_temp3_standalone::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp_standalone:e1 ELSE expr_temp_standalone:e2     {: RESULT = "("+i1+" prefix " +i2+"?"+e1+":"+e2+")"; :}
 ;
 func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next; :}
             |                               {: RESULT = ""; :}
