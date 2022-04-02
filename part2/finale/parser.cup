@@ -57,20 +57,20 @@ start with program;
 /**
  *  The Grammar Rules
  */
-program  ::= program1:p1 program2:p2          {: System.out.println("public static void main(String[] args) {\n"+p2+"}\n"+p1); :}
-            | program1:p1                     {: System.out.println(p1); :}
-            | program2:p2                     {: System.out.println("public static void main(String[] args) {\n"+p2+"}"); :}
+program  ::= program1:p1 program2:p2          {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+p1+"}"); :}
+            | program1:p1                     {: System.out.println("public class Main{"+"public static void main(String[] args) {}"+p1+"}"); :}
+            | program2:p2                     {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+"}"); :}
 ;
-program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+"\n"; :}
-            | expr_list:e               {: RESULT = e+"\n"; :}
+program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+""; :}
+            | expr_list:e               {: RESULT = e+""; :}
 ;
-program2  ::= program2:p expr_list2:e  {: RESULT = p+"System.out.println("+e+");\n"; :}
-            | expr_list2:e             {: RESULT = "System.out.println("+e+");\n"; :}
-            | program2:p expr_temp_standalone:e  {: RESULT = p+"System.out.println("+e+");\n"; :}
-            | expr_temp_standalone:e             {: RESULT = "System.out.println("+e+");\n"; :}
+program2  ::= program2:p expr_list2:e  {: RESULT = p+"System.out.println("+e+");"; :}
+            | expr_list2:e             {: RESULT = "System.out.println("+e+");"; :}
+            | program2:p expr_temp_standalone:e  {: RESULT = p+"System.out.println("+e+");"; :}
+            | expr_temp_standalone:e             {: RESULT = "System.out.println("+e+");"; :}
 ;
 
-expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"("+param1+paramN+"){"+e+"}"; :}
+expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(String "+param1+paramN+"){"+e+"}"; :}
             | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(){"+e+"}"; :}
 ;            
 expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"(\""+arg1+"\""+argN+")"; :}
@@ -93,7 +93,7 @@ expr_temp3_standalone::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN ex
 func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next; :}
             |                               {: RESULT = ""; :}
 ;
-func_params_2 ::= COMMA func_params:next {: RESULT = ", "+next; :}
+func_params_2 ::= COMMA func_params:next {: RESULT = ", String "+next; :}
             |                            {: RESULT = ""; :}
 ;
 func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next      {: RESULT = id+"("+inside+")"+next; :}
@@ -104,7 +104,7 @@ func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next      {: R
 func_args_2 ::= COMMA func_args:next    {: RESULT = ", "+next; :}
             |                           {: RESULT = ""; :}
 ;
-expr      ::= IFS LPAREN expr_temp4:i1 PREFIX expr_temp4:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if("+i1+" prefix " +i2+"){"+e1+"}else{"+e2+"}"; :}
+expr      ::= IFS LPAREN expr_temp4:i1 PREFIX expr_temp4:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if(("+i1+").startsWith("+i2+")){"+e1+"}else{"+e2+"}"; :}
             | expr_temp2:e                                                                  {: RESULT = "return "+e+";"; :}
 ;
 expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
@@ -121,5 +121,5 @@ item ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
         | REVERSE IDENT:id                      {: RESULT = "reverse "+id; :}
         | REVERSE expr_temp3:id                 {: RESULT = "reverse "+id; :}
 ;
-expr_temp3::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "("+i1+" prefix " +i2+"?"+e1+":"+e2+")"; :}
+expr_temp3::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "(("+i1+").startsWith("+i2+")?"+e1+":"+e2+")"; :}
 ;

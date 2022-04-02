@@ -1,6 +1,17 @@
-"1+1"
-"2+2"
-reverse dong + "test+1"
-dong
-reverse if("foo+1" prefix "foobar+1") "test+1" else "yes+1"
-reverse if("foo+1" prefix "foobar+1") "test+1" else "yes+1" + "test+1"
+name() {
+        "John+1"
+    }
+
+    repeat(x) {
+        x + x
+    }
+
+    cond_repeat(c, x) {
+        if ("no+1"+"pp+1" prefix "yes+1"+"test+1")
+            if("yes+1" prefix c)
+                repeat(x)
+            else
+                x
+        else
+            x
+    }
