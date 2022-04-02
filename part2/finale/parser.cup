@@ -30,10 +30,11 @@ non terminal            program;
 non terminal            expr_list;
 non terminal            expr_list2;
 non terminal            item;
-// non terminal            func_args;
 non terminal            expr;      // used to store evaluated subexpressions
 
 non terminal            expr_temp2;
+non terminal            expr_temp3;
+non terminal            expr_temp4;
 non terminal            func_params;
 non terminal            func_params_2;
 non terminal            func_args;
@@ -84,15 +85,22 @@ func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next      {: R
 func_args_2 ::= COMMA func_args:next    {: RESULT = ", "+next; :}
             |                           {: RESULT = ""; :}
 ;
-expr      ::= IFS LPAREN item:i1 PREFIX item:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if("+i1+" prefix " +i2+"){"+e1+"}else{"+e2+"}"; :}
-            | expr_temp2:e                                                      {: RESULT = "return "+e+";"; :}
+expr      ::= IFS LPAREN expr_temp4:i1 PREFIX expr_temp4:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if("+i1+" prefix " +i2+"){"+e1+"}else{"+e2+"}"; :}
+            | expr_temp2:e                                                                  {: RESULT = "return "+e+";"; :}
 ;
 expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
             | item:i                                {: RESULT = ""+i; :}
+;
+expr_temp4 ::= expr_temp4:e1 PLUS expr_temp4:e2	    {: RESULT = e1+"+"+e2; :}
+            | item:i                                {: RESULT = ""+i; :}
+            | expr_temp3:id                         {: RESULT = id; :}
 ;
 item ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
         | IDENT:id                              {: RESULT = id; :}
         | IDENT:id LPAREN func_args:a RPAREN    {: RESULT = id+"("+a+")"; :}
         | REVERSE STRING_LITERAL:s              {: RESULT = "reverse \""+s+"\""; :}
         | REVERSE IDENT:id                      {: RESULT = "reverse "+id; :}
+        | REVERSE expr_temp3:id                 {: RESULT = "reverse "+id; :}
+;
+expr_temp3::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "("+i1+" prefix " +i2+"?"+e1+":"+e2+")"; :}
 ;

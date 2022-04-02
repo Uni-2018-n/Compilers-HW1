@@ -1,0 +1,6 @@
+---reverse can go outside of ifs
+go(test, if(pp prefix tt) "yes" else "no")
+---if (if ("foo" prefix "foobar") "yes" else "no" prefix "mike") "foo" else "bar"
+σκετα statements χωρις συναρτησεις κλπ
+func_call func_implement func_call
+----revers if() "" else ""

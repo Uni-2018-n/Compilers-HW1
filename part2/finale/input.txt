@@ -1,19 +1,20 @@
- findLangType(langName) {
-        if ("Java+1" prefix langName)
-            if(langName prefix "Java+1")
-                "Static+1"
-            else
-                if(reverse "script+1" prefix reverse langName)
-                    "Dynamic+1"
-                else
-                    "Unknown+1"
-        else
-            if (reverse "script+1" prefix reverse langName)
-                "Probably Dynamic+1"
-            else
-                "Unknown+1"
+name() {
+        "John+1"
     }
 
-    findLangType("Java+1")
-    findLangType("Javascript+1")
-    findLangType("Typescript+1")
+    repeat(x) {
+        x + x
+    }
+
+    cond_repeat(c, x) {
+        if (reverse if("foo+1" prefix "foobar+1") "yes+1" else "no+1" prefix "yes+1")
+            if("yes+1" prefix c)
+                reverse if("foo+1" prefix "foobar+1") repeat(x) else "no+1"
+            else
+                x
+        else
+            x
+    }
+
+    cond_repeat("yes+1", name())
+    cond_repeat("no+1", "Jane+1")
