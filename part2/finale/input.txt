@@ -1,20 +1,3 @@
 name() {
-    "John"
+    if("yes" prefix "yes") "yes" else "no" + if("yes" prefix "yes") "yes" else "no"
 }
-
-repeat(x) {
-    x + x
-}
-
-cond_repeat(c, x) {
-    if (c prefix "yes")
-        if("yes" prefix c)
-            repeat(x)
-        else
-            x
-    else
-        x
-}
-
-cond_repeat("yes", name())
-cond_repeat("no", "Jane")

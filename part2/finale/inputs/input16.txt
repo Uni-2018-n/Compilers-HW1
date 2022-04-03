@@ -1,0 +1,3 @@
+name() {
+    "John"+if("yes" prefix "yes") "yes" else "no"
+}
