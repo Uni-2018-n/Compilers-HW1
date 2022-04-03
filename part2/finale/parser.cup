@@ -104,7 +104,7 @@ func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next      {: R
 func_args_2 ::= COMMA func_args:next    {: RESULT = ", "+next; :}
             |                           {: RESULT = ""; :}
 ;
-expr      ::= IFS LPAREN expr_temp4:i1 PREFIX expr_temp4:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if(("+i1+").startsWith("+i2+")){"+e1+"}else{"+e2+"}"; :}
+expr      ::= IFS LPAREN expr_temp4:i1 PREFIX expr_temp4:i2 RPAREN expr:e1 ELSE expr:e2     {: RESULT = "if(("+i2+").startsWith("+i1+")){"+e1+"}else{"+e2+"}"; :}
             | expr_temp2:e                                                                  {: RESULT = "return "+e+";"; :}
 ;
 expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
@@ -121,5 +121,5 @@ item ::= STRING_LITERAL:s                       {: RESULT = s; :}
         | REVERSE IDENT:id                      {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | REVERSE expr_temp3:id                 {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
 ;
-expr_temp3::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "(("+i1+").startsWith("+i2+")?"+e1+":"+e2+")"; :}
+expr_temp3::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "(("+i2+").startsWith("+i1+")?"+e1+":"+e2+")"; :}
 ;
