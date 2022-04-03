@@ -7,6 +7,7 @@
 public interface sym {
   /* terminals */
   public static final int MINUS = 4;
+  public static final int IDENT = 9;
   public static final int SEMI = 2;
   public static final int STRING_LITERAL = 8;
   public static final int EOF = 0;
@@ -24,7 +25,8 @@ public interface sym {
   "TIMES",
   "LPAREN",
   "RPAREN",
-  "STRING_LITERAL"
+  "STRING_LITERAL",
+  "IDENT"
   };
 }
 

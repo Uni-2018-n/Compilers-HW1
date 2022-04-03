@@ -2,7 +2,6 @@
 import java_cup.runtime.*;
 
 %%
-/**
 /* -----------------Options and Declarations Section----------------- */
 
 /*
@@ -59,6 +58,7 @@ LineTerminator = \r|\n|\r\n
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
 %state STRING
+Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
 
 %%
 /* ------------------------Lexical Rules Section---------------------- */
@@ -73,11 +73,12 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
  ";"            { return symbol(sym.SEMI); }
  \"             { stringBuffer.setLength(0); yybegin(STRING); }
  {WhiteSpace}   { /* just skip what was found, do nothing */ }
+ {Ident}           { return symbol(sym.IDENT, yytext()); }
 }
 
 <STRING> {
       \"                             { yybegin(YYINITIAL);
-                                       return symbol(sym.STRING_LITERAL, stringBuffer.toString()); }
+                                       return symbol(sym.STRING_LITERAL, "\""+stringBuffer.toString()+"\""); }
       [^\n\r\"\\]+                   { stringBuffer.append( yytext() ); }
       \\t                            { stringBuffer.append('\t'); }
       \\n                            { stringBuffer.append('\n'); }

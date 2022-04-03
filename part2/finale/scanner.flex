@@ -83,14 +83,14 @@ Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
  ","      { return symbol(sym.COMMA); }
  \"       { stringBuffer.setLength(0); yybegin(STRING); }
 {WhiteSpace} { /* just skip what was found, do nothing */ }
+{Ident}           { return symbol(sym.IDENT, yytext()); }
 }
 
-{Ident}           { return symbol(sym.IDENT, yytext()); }
 
 
 <STRING> {
       \"                             { yybegin(YYINITIAL);
-                                       return symbol(sym.STRING_LITERAL, stringBuffer.toString()); }
+                                       return symbol(sym.STRING_LITERAL, "\""+stringBuffer.toString()+"\""); }
       [^\n\r\"\\]+                   { stringBuffer.append( yytext() ); }
       \\t                            { stringBuffer.append('\t'); }
       \\n                            { stringBuffer.append('\n'); }

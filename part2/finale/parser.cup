@@ -73,7 +73,7 @@ program2  ::= program2:p expr_list2:e  {: RESULT = p+"System.out.println("+e+");
 expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN                            RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(String "+param1+paramN+"){"+e+"}"; :}
             | IDENT:fName LPAREN                                                              RPAREN LBRAKET expr:e RBRAKET {: RESULT = "public static String "+fName+"(){"+e+"}"; :}
 ;            
-expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"(\""+arg1+"\""+argN+")"; :}
+expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"("+arg1+argN+")"; :}
             | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: RESULT = fName+"("+arg1+"("+argI+")"+argN+")"; :}
             | IDENT:fName LPAREN                                                              RPAREN                        {: RESULT = fName+"()"; :}
 ;
@@ -81,9 +81,9 @@ expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN           
 expr_temp_standalone ::= expr_temp_standalone:e1 PLUS expr_temp_standalone:e2	    {: RESULT = e1+"+"+e2; :}
             | item_standalone:i                                {: RESULT = ""+i; :}
 ;
-item_standalone ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
+item_standalone ::= STRING_LITERAL:s                       {: RESULT = s; :}
         | IDENT:id                              {: RESULT = id; :}
-        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder(\""+s+"\").reverse().toString()"; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder("+s+").reverse().toString()"; :}
         | REVERSE IDENT:id                      {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | REVERSE expr_temp3_standalone:id                 {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | expr_temp3_standalone:id                         {: RESULT = id; :}
@@ -98,7 +98,7 @@ func_params_2 ::= COMMA func_params:next {: RESULT = ", String "+next; :}
 ;
 func_args ::= IDENT:id LPAREN func_args:inside RPAREN func_args_2:next      {: RESULT = id+"("+inside+")"+next; :}
             | IDENT:id func_args_2:next                                     {: RESULT = ""+id+next; :}
-            | STRING_LITERAL:str func_args_2:next                           {: RESULT = "\""+str+"\""+next; :}
+            | STRING_LITERAL:str func_args_2:next                           {: RESULT = str+next; :}
             |                                                               {: RESULT = ""; :} 
 ;
 func_args_2 ::= COMMA func_args:next    {: RESULT = ", "+next; :}
@@ -114,10 +114,10 @@ expr_temp4 ::= expr_temp4:e1 PLUS expr_temp4:e2	    {: RESULT = e1+"+"+e2; :}
             | item:i                                {: RESULT = ""+i; :}
             | expr_temp3:id                         {: RESULT = id; :}
 ;
-item ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
+item ::= STRING_LITERAL:s                       {: RESULT = s; :}
         | IDENT:id                              {: RESULT = id; :}
         | IDENT:id LPAREN func_args:a RPAREN    {: RESULT = id+"("+a+")"; :}
-        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder(\""+s+"\").reverse().toString()"; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder("+s+").reverse().toString()"; :}
         | REVERSE IDENT:id                      {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | REVERSE expr_temp3:id                 {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
 ;
