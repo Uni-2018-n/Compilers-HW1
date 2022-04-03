@@ -4,5 +4,5 @@ go(test, if(pp prefix tt) "yes" else "no")
 func_call func_implement func_call
 ---if (if ("foo" prefix "foobar") "yes" else "no" prefix "mike") "foo" else "bar"
 ----revers if() "" else ""
-reverse test + "test"
-if() "" else "" + ""
+---reverse test + "test"
+---if() "" else "" + ""

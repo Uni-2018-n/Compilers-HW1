@@ -83,9 +83,9 @@ expr_temp_standalone ::= expr_temp_standalone:e1 PLUS expr_temp_standalone:e2	  
 ;
 item_standalone ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
         | IDENT:id                              {: RESULT = id; :}
-        | REVERSE STRING_LITERAL:s              {: RESULT = "reverse \""+s+"\""; :}
-        | REVERSE IDENT:id                      {: RESULT = "reverse "+id; :}
-        | REVERSE expr_temp3_standalone:id                 {: RESULT = "reverse "+id; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder(\""+s+"\").reverse().toString()"; :}
+        | REVERSE IDENT:id                      {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
+        | REVERSE expr_temp3_standalone:id                 {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | expr_temp3_standalone:id                         {: RESULT = id; :}
 ;
 expr_temp3_standalone::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp_standalone:e1 ELSE expr_temp_standalone:e2     {: RESULT = "("+i1+" prefix " +i2+"?"+e1+":"+e2+")"; :}
@@ -117,9 +117,9 @@ expr_temp4 ::= expr_temp4:e1 PLUS expr_temp4:e2	    {: RESULT = e1+"+"+e2; :}
 item ::= STRING_LITERAL:s                       {: RESULT = "\""+s+"\""; :}
         | IDENT:id                              {: RESULT = id; :}
         | IDENT:id LPAREN func_args:a RPAREN    {: RESULT = id+"("+a+")"; :}
-        | REVERSE STRING_LITERAL:s              {: RESULT = "reverse \""+s+"\""; :}
-        | REVERSE IDENT:id                      {: RESULT = "reverse "+id; :}
-        | REVERSE expr_temp3:id                 {: RESULT = "reverse "+id; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder(\""+s+"\").reverse().toString()"; :}
+        | REVERSE IDENT:id                      {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
+        | REVERSE expr_temp3:id                 {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
 ;
 expr_temp3::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "(("+i1+").startsWith("+i2+")?"+e1+":"+e2+")"; :}
 ;

@@ -1,17 +1,20 @@
 name() {
-        "John+1"
-    }
+    "reverse+1"
+}
 
-    repeat(x) {
-        x + x
-    }
+repeat(x) {
+    x + x
+}
 
-    cond_repeat(c, x) {
-        if ("no+1"+"pp+1" prefix "yes+1"+"test+1")
-            if("yes+1" prefix c)
-                repeat(x)
-            else
-                x
+cond_repeat(c, x) {
+    if (reverse c prefix "yes+1")
+        if("yes+1" prefix c)
+            repeat(x)
         else
             x
-    }
+    else
+        x
+}
+
+cond_repeat("yes+1", name())
+cond_repeat("no+1", "Jane+1")
