@@ -1,5 +1,8 @@
 ---reverse can go outside of ifs
 go(test, if(pp prefix tt) "yes" else "no")
+go(test()+"yes")
+go(test(), if())
+return test+if()
 ---σκετα statements χωρις συναρτησεις κλπ
 func_call func_implement func_call
 ---if (if ("foo" prefix "foobar") "yes" else "no" prefix "mike") "foo" else "bar"
