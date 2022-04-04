@@ -1,2 +1,3 @@
-
-fullname(name(), " ", surname())
+test(){
+    test+if(pp prefix tt) "yes" else "no"
+}
