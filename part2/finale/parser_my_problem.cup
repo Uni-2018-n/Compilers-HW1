@@ -52,31 +52,31 @@ non terminal            program2;
 /**
  *  Precedence Declarations
  */
-precedence left LPAREN;
+precedence left PLUS, LBRAKET;
+// precedence left COMMA, RPAREN;
 
 start with program;
 
 /**
  *  The Grammar Rules
  */
-program  ::= expr_list:p1                     {: System.out.println("public class Main{"+"public static void main(String[] args) {}"+p1+"}"); :}
+program  ::=  expr_list:p1                     {: System.out.println("public class Main{"+"public static void main(String[] args) {}"+p1+"}"); :}
             | item:p2                     {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+"}"); :}
 ;
-expr_list ::= IDENT:fName func_params LBRAKET  {: RESULT = "public static String "+fName+"(String "+params+"){ return "+e+";}"; :}
-;
-item ::= IDENT:id func_args                             {: RESULT = id; :}
-            |
-;
-func_args ::= LPAREN item:ite func_args_2:next RPAREN  {: RESULT = ""+ite+next; :}
-            |
-;
-func_args_2 ::= COMMA item func_args_2:next    {: RESULT = ", "+next; :}
-            | PLUS item func_args_2:next       {: RESULT = "+"+next; :}
-            |                           {: RESULT = ""; :}
-;
-func_params ::= LPAREN IDENT func_params_2 RPAREN
+expr_list ::= IDENT:fName func_params LBRAKET {: RESULT = "public static String "+fName+"(String "+param1+paramN+"){ return "+e+";}"; :}
+;            
+func_params ::= LPAREN IDENT func_params_2
             |
 ;
 func_params_2 ::= COMMA IDENT:next func_params_2 {: RESULT = ", String "+next; :}
-            |                            {: RESULT = ""; :}
+            |  RPAREN                          {: RESULT = ""; :}
+;
+item ::= IDENT:id func_args:a                  {: RESULT = id+"("+a+")"; :}
+;
+func_args ::= LPAREN item:ite func_args_2:next  {: RESULT = ""+ite+next; :}
+           |
+;
+func_args_2 ::= COMMA item func_args_2:next    {: RESULT = ", "+next; :}
+            | PLUS item func_args_2:next       {: RESULT = "+"+next; :}
+            |  RPAREN                         {: RESULT = ""; :}
 ;
