@@ -1,1 +1,1 @@
-name(test, test)
+name(test, "Test")

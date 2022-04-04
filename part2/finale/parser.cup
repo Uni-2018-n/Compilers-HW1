@@ -80,9 +80,15 @@ expr_list ::= IDENT:fName LPAREN IDENT:param1 func_params_2:paramN              
 ;            
 expr_list2::= IDENT:fName LPAREN STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"("+arg1+argN+")"; :}
             | IDENT:fName LPAREN IDENT:arg1 LPAREN  RPAREN func_args_2:argN                   RPAREN                        {: RESULT = fName+"("+arg1+"()"+argN+")"; :}
+            // | IDENT:fName LPAREN IDENT:arg1 func_args_2:argN                   RPAREN                        {: RESULT = fName+"("+arg1+argN+")"; :}
             | IDENT:fName LPAREN IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: RESULT = fName+"("+arg1+"("+argI+")"+argN+")"; :}
             | IDENT:fName LPAREN IFS expr:arg1 func_args_2:argN                               RPAREN                        {: RESULT = fName+"("+arg1+argN+")"; :}
             | IDENT:fName LPAREN                                                              RPAREN                        {: RESULT = fName+"()"; :}
+            | IDENT:fName LPAREN REVERSE STRING_LITERAL:arg1 func_args_2:argN                         RPAREN                        {: RESULT = fName+"(new StringBuilder("+arg1+").reverse().toString()"+argN+")"; :}
+            | IDENT:fName LPAREN REVERSE IDENT:arg1 LPAREN  RPAREN func_args_2:argN                   RPAREN                        {: RESULT = fName+"(new StringBuilder("+arg1+"()).reverse().toString()"+argN+")"; :}
+            | IDENT:fName LPAREN REVERSE IDENT:arg1 func_args_2:argN                   RPAREN                        {: RESULT = fName+"(new StringBuilder("+arg1+").reverse().toString()"+argN+")"; :}
+            | IDENT:fName LPAREN REVERSE IDENT:arg1 LPAREN func_args:argI RPAREN func_args_2:argN     RPAREN                        {: RESULT = fName+"(new StringBuilder("+arg1+"("+argI+").reverse().toString()"+argN+")"; :}
+            | IDENT:fName LPAREN REVERSE IFS expr:arg1 func_args_2:argN                               RPAREN                        {: RESULT = fName+"(new StringBuilder("+arg1+").reverse().toString()"+argN+")"; :}
 ;
 
 item_standalone ::= STRING_LITERAL:s                       {: RESULT = s; :}
