@@ -1,3 +1,1 @@
-test(){
-    test+if(pp prefix tt) "yes" else "no"
-}
+name(test, test)

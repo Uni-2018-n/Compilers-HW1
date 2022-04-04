@@ -66,9 +66,7 @@ program  ::= program1:p1 program2:p2          {: System.out.println("public clas
 program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+""; :}
             | expr_list:e               {: RESULT = e+""; :}
 ;
-program2  ::= program2:p expr_list2:e         {: RESULT = p+"System.out.println("+e+");"; :}
-            | expr_list2:e                    {: RESULT = "System.out.println("+e+");"; :}
-            | program2:p1 expr_standalone:p2  {: RESULT = p1+"System.out.println("+p2+");"; :}
+program2  ::=  program2:p1 expr_standalone:p2  {: RESULT = p1+"System.out.println("+p2+");"; :}
             | expr_standalone:e               {: RESULT = "System.out.println("+e+");"; :}            
 ;
 expr_standalone ::= expr_standalone:es1 PLUS expr_standalone:es2     {: RESULT = es1+"+"+es2; :}
@@ -93,6 +91,8 @@ item_standalone ::= STRING_LITERAL:s                       {: RESULT = s; :}
             | REVERSE IDENT:id                             {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
             | REVERSE IFS expr:id                          {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
             | IFS expr:id                                  {: RESULT = id; :}
+            | expr_list2:e                                 {: RESULT = e; :}
+            | REVERSE expr_list2:e                         {: RESULT = "new StringBuilder("+e+").reverse().toString()"; :}
 ;
 func_params ::= IDENT:id func_params_2:next {: RESULT = ""+id + next; :}
             |                               {: RESULT = ""; :}
