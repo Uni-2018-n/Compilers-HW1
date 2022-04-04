@@ -1,4 +1,4 @@
-name(test, yeet){
+name(test, foo){
 
 }
-name(test, yeet)
+name(test, foo)

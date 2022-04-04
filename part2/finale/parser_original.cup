@@ -73,13 +73,13 @@ expr_standalone ::= expr_standalone:es1 PLUS expr_standalone:es2     {: RESULT =
         | item:ite                                        {: RESULT = ite; :}
 ;
 
-expr_list ::= IDENT:fName func_params LBRAKET expr_temp2:e RBRAKET {: RESULT = "public static String "+fName+"(String "+param1+paramN+"){ return "+e+";}"; :}
+expr_list ::= IDENT:fName LPAREN func_params RPAREN LBRAKET expr_temp2:e RBRAKET {: RESULT = "public static String "+fName+"(String "+param1+paramN+"){ return "+e+";}"; :}
 ;            
-func_params ::= LPAREN IDENT func_params_2
+func_params ::= IDENT func_params_2
             |
 ;
 func_params_2 ::= COMMA IDENT:next func_params_2 {: RESULT = ", String "+next; :}
-            |  RPAREN                          {: RESULT = ""; :}
+            |                            {: RESULT = ""; :}
 ;
 expr      ::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "((("+i2+").startsWith("+i1+"))?"+e1+":"+e2+")"; :}
 ;
@@ -87,16 +87,18 @@ expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
             | item:i                                {: RESULT = ""+i; :}
 ;
 item ::= STRING_LITERAL:s                       {: RESULT = s; :}
-        | IDENT:id func_args:a                  {: RESULT = id+"("+a+")"; :}
+        | IDENT:id                              {: RESULT = id; :}
+        | IDENT:id LPAREN func_args:a RPAREN    {: RESULT = id+"("+a+")"; :}
+        | IDENT:id LPAREN RPAREN                {: RESULT = id+"()"; :}
         | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder("+s+").reverse().toString()"; :}
         | REVERSE IDENT:id                      {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | REVERSE expr:id                   {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
         | expr:id                           {: RESULT = id; :}
 ;
-func_args ::= LPAREN item:ite func_args_2:next  {: RESULT = ""+ite+next; :}
+func_args ::= item:ite func_args_2:next  {: RESULT = ""+ite+next; :}
            |
 ;
 func_args_2 ::= COMMA item func_args_2:next    {: RESULT = ", "+next; :}
             | PLUS item func_args_2:next       {: RESULT = "+"+next; :}
-            |  RPAREN                         {: RESULT = ""; :}
+            |                           {: RESULT = ""; :}
 ;
