@@ -1,4 +1,15 @@
-name(test, foo){
-     foo()+test+"item"
+helper(str, acc, i, n) {
+  if (i prefix n)
+    if (n prefix i)
+      acc
+    else
+      helper(str, acc + str, i + ".", n)
+  else
+    ""
 }
-name(test(), foo(), if("yes" prefix "yes") "yes" else "no")
+
+concat_n(str, n) {
+  helper(str, "", "", n)
+}
+
+concat_n("x", "....")
