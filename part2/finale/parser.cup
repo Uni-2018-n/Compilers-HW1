@@ -28,23 +28,20 @@ terminal String    STRING_LITERAL;        // our scanner provides numbers as int
 /*  Non terminals */
 non terminal            program;
 non terminal            expr_list;
-non terminal            expr_list2;
 non terminal            item;
-non terminal            item_standalone;
+non terminal            item_inside;
 non terminal            expr;      // used to store evaluated subexpressions
+non terminal            expr_inside;      // used to store evaluated subexpressions
 
 non terminal            expr_temp2;
-non terminal            expr_temp3;
-non terminal            expr_temp4;
+non terminal            expr_inside_temp2;
 non terminal            expr_standalone;
-non terminal            expr_temp3_standalone;
 non terminal            func_params;
 non terminal            func_params_2;
 non terminal            func_args;
+non terminal            func_args_inside;
 non terminal            func_args_2;
-non terminal            func_args3;
-non terminal            func_args_4;
-non terminal            func_args5;
+non terminal            func_args_inside_2;
 non terminal            program1;
 non terminal            program2;
 
@@ -52,6 +49,7 @@ non terminal            program2;
 /**
  *  Precedence Declarations
  */
+precedence left PLUS, LBRAKET;
 // precedence left COMMA, RPAREN;
 
 start with program;
@@ -59,23 +57,66 @@ start with program;
 /**
  *  The Grammar Rules
  */
-program  ::=  IDENT:fName expr_list
+program  ::= program1:p1 program2:p2          {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+p1+"}"); :}
+            | program1:p1                     {: System.out.println("public class Main{"+"public static void main(String[] args) {}"+p1+"}"); :}
+            | program2:p2                     {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+"}"); :}
 ;
-expr_list ::= func_params LBRAKET {: RESULT = "public static String "+fName+"(String "+param1+paramN+"){ return "+e+";}"; :}
-            | func_args:a                  {: RESULT = id+"("+a+")"; :}
-; 
-func_params ::= LPAREN IDENT func_params_2
-            |
+program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+""; :}
+            | expr_list:e               {: RESULT = e+""; :}
+;
+program2  ::=  program2:p1 expr_standalone:p2  {: RESULT = p1+"System.out.println("+p2+");"; :}
+            | expr_standalone:e               {: RESULT = "System.out.println("+e+");"; :}            
+;
+expr_standalone ::= expr_standalone:es1 PLUS expr_standalone:es2     {: RESULT = es1+"+"+es2; :}
+        | item:ite                                        {: RESULT = ite; :}
+;
+
+expr_list ::= IDENT:fName func_params:params LBRAKET expr_inside_temp2:e RBRAKET {: RESULT = "public static String "+fName+"(String "+params+"){ return "+e+";}"; :}
+;            
+func_params ::= LPAREN IDENT:id func_params_2:paramsN RPAREN  {: RESULT = "("+id+paramsN+")";:}
+            | LPAREN RPAREN     {: RESULT = "()"; :}
+            // |
 ;
 func_params_2 ::= COMMA IDENT:next func_params_2 {: RESULT = ", String "+next; :}
-            |  RPAREN                          {: RESULT = ""; :}
+            |                           {: RESULT = ""; :}
 ;
-item ::= IDENT:id func_args:a                  {: RESULT = id+"("+a+")"; :}
+expr      ::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "((("+i2+").startsWith("+i1+"))?"+e1+":"+e2+")"; :}
 ;
-func_args ::= LPAREN item:ite func_args_2:next  {: RESULT = ""+ite+next; :}
-           |
+expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
+            | item:i                                {: RESULT = ""+i; :}
 ;
-func_args_2 ::= COMMA item func_args_2:next    {: RESULT = ", "+next; :}
-            // | PLUS item func_args_2:next       {: RESULT = "+"+next; :}
-            |  RPAREN                         {: RESULT = ""; :}
+item ::= STRING_LITERAL:s                       {: RESULT = s; :}
+        | IDENT:id func_args:a                  {: RESULT = ""+id+a; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder("+s+").reverse().toString()"; :}
+        | REVERSE IDENT:id func_args:a          {: RESULT = "new StringBuilder("+id+a+").reverse().toString()"; :}
+        | REVERSE expr:id                   {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
+        | expr:id                           {: RESULT = id; :}
+;
+func_args ::= LPAREN item:ite func_args_2:next RPAREN  {: RESULT = "("+ite+next+")"; :}
+            | LPAREN RPAREN {: RESULT = "()"; :}
+        //    |
+;
+func_args_2 ::= COMMA item:ite func_args_2:next    {: RESULT = ", "+ite+next; :}
+            | PLUS item:ite func_args_2:next       {: RESULT = "+"+ite+next; :}
+            |                          {: RESULT = ""; :}
+;
+expr_inside ::= IFS LPAREN expr_inside_temp2:i1 PREFIX expr_inside_temp2:i2 RPAREN expr_inside_temp2:e1 ELSE expr_inside_temp2:e2     {: RESULT = "((("+i2+").startsWith("+i1+"))?"+e1+":"+e2+")"; :}
+;
+expr_inside_temp2 ::= expr_inside_temp2:e1 PLUS expr_inside_temp2:e2	    {: RESULT = e1+"+"+e2; :}
+            | item_inside:i                                {: RESULT = ""+i; :}
+;
+item_inside ::= STRING_LITERAL:s                       {: RESULT = s; :}
+        | IDENT:id func_args_inside:a                  {: RESULT = ""+id+a; :}
+        | REVERSE STRING_LITERAL:s              {: RESULT = "new StringBuilder("+s+").reverse().toString()"; :}
+        | REVERSE IDENT:id func_args_inside:a   {: RESULT = "new StringBuilder("+id+a+").reverse().toString()"; :}
+        | REVERSE expr:id                   {: RESULT = "new StringBuilder("+id+").reverse().toString()"; :}
+        | expr:id                           {: RESULT = id; :}
+;
+func_args_inside ::= LPAREN item_inside:ite func_args_inside_2:next RPAREN  {: RESULT = "("+ite+next+")"; :}
+            | LPAREN RPAREN {: RESULT = "()"; :}
+           |    {: RESULT = "";:}
+;
+func_args_inside_2 ::= COMMA item_inside func_args_inside_2:next    {: RESULT = ", "+next; :}
+            | PLUS item func_args_inside_2:next       {: RESULT = "+"+next; :}
+            |                          {: RESULT = ""; :}
 ;

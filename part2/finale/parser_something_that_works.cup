@@ -1,0 +1,92 @@
+/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
+/**
+ *  Package and Import Specifications
+ */
+import java_cup.runtime.*;
+
+/**
+ *  Usercode Components
+ */
+parser code {:
+    // Connect this parser to a scanner!
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+:}
+
+/* define how to connect to the scanner! */
+scan with {: return s.next_token(); :};
+
+/**
+ *  Symbol Lists
+ */
+
+/* Terminals (tokens returned by the scanner). */
+terminal            PLUS, LPAREN, RPAREN, REVERSE, LBRAKET, RBRAKET, COMMA, IFS, PREFIX, ELSE;
+terminal IDENT;
+terminal String    STRING_LITERAL;        // our scanner provides numbers as integers
+
+/*  Non terminals */
+non terminal            program;
+non terminal            expr_list;
+non terminal            expr_list2;
+non terminal            item;
+non terminal            item_standalone;
+non terminal            expr;      // used to store evaluated subexpressions
+
+non terminal            expr_temp2;
+non terminal            expr_temp3;
+non terminal            expr_temp4;
+non terminal            expr_standalone;
+non terminal            expr_temp3_standalone;
+non terminal            func_params;
+non terminal            func_params_2;
+non terminal            func_args;
+non terminal            func_args_2;
+non terminal            func_args3;
+non terminal            func_args_4;
+non terminal            func_args5;
+non terminal            program1;
+non terminal            program2;
+
+
+/**
+ *  Precedence Declarations
+ */
+// precedence left COMMA, RPAREN;
+
+start with program;
+
+/**
+ *  The Grammar Rules
+ */
+program  ::= program1:p1 program2:p2          {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+p1+"}"); :}
+            | program1:p1                     {: System.out.println("public class Main{"+"public static void main(String[] args) {}"+p1+"}"); :}
+            | program2:p2                     {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+"}"); :}
+;
+program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+""; :}
+            | expr_list:e               {: RESULT = e+""; :}
+;
+program2  ::=  program2:p1 expr_standalone:p2  {: RESULT = p1+"System.out.println("+p2+");"; :}
+            | expr_standalone:e               {: RESULT = "System.out.println("+e+");"; :}            
+;
+expr_list  ::=  IDENT:fName func_params:params LBRAKET {: RESULT = "public static String "+fName+params+"{ return ;}"; :}
+;
+expr_standalone ::= IDENT:id func_args:a                  {: RESULT = ""+id+a; :}
+;
+func_params ::= LPAREN IDENT:id func_params_2:paramsN RPAREN {: RESULT = "(String "+id+paramsN+")";:}
+            | LPAREN RPAREN     {: RESULT = "()";:}
+;
+func_params_2 ::= COMMA IDENT:next func_params_2 {: RESULT = ", String "+next; :}
+            |                                    {: RESULT = ""; :}
+;
+item ::= IDENT:id func_args:a                  {: RESULT = ""+id+a; :}
+            // |
+;
+func_args ::= LPAREN item:ite func_args_2:next RPAREN  {: RESULT = "("+ite+next+")"; :}
+           | LPAREN RPAREN {: RESULT = "()"; :}
+        //    | 
+;
+func_args_2 ::= COMMA item:it1 func_args_2:next    {: RESULT = ", "+it1+next; :}
+            | PLUS item:it1 func_args_2:next       {: RESULT = "+"+it1+next; :}
+            |                          {: RESULT = ""; :}
+;

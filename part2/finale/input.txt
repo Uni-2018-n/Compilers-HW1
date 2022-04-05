@@ -1,4 +1,4 @@
 name(test, foo){
-
+     foo()+test+"item"
 }
-name(test, foo)
+name(test(), foo(), if("yes" prefix "yes") "yes" else "no")
