@@ -57,10 +57,10 @@ start with program;
  *  The Grammar Rules
  */
 program  ::= program1:p1 program2:p2          {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+p1+"}"); :}
-            | program1:p1                     {: System.out.println("public class Main{"+"public static void main(String[] args) {}"+p1+"}"); :}
-            | program2:p2                     {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}"+"}"); :}
+            | program1:p1                     {: System.out.println("public class Main{ public static void main(String[] args) {}"+p1+"}"); :}
+            | program2:p2                     {: System.out.println("public class Main{ public static void main(String[] args) {"+p2+"}}"); :}
 ;
-program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e+""; :}
+program1 ::= program1:p expr_list:e     {: RESULT = ""+p+e; :}
             | expr_list:e               {: RESULT = e+""; :}
 ;
 program2  ::=  program2:p1 expr_standalone:p2  {: RESULT = p1+"System.out.println("+p2+");"; :}
@@ -69,16 +69,15 @@ program2  ::=  program2:p1 expr_standalone:p2  {: RESULT = p1+"System.out.printl
 expr_standalone ::= expr_standalone:es1 PLUS expr_standalone:es2     {: RESULT = es1+"+"+es2; :}
         | item:ite                                                   {: RESULT = ite; :}
 ;
-
-expr_list ::= IDENT:fName func_params:params LBRAKET expr_inside_temp2:e RBRAKET {: RESULT = "public static String "+fName+"(String "+params+"){ return "+e+";}"; :}
+expr_list ::= IDENT:fName func_params:params LBRAKET expr_inside_temp2:e RBRAKET {: RESULT = "public static String "+fName+params+"{ return "+e+";}"; :}
 ;            
-func_params ::= LPAREN IDENT:id func_params_2:paramsN RPAREN  {: RESULT = "("+id+paramsN+")";:}
+func_params ::= LPAREN IDENT:id func_params_2:paramsN RPAREN  {: RESULT = "(String "+id+paramsN+")";:}
             | LPAREN RPAREN                                   {: RESULT = "()"; :}
 ;
-func_params_2 ::= COMMA IDENT:next func_params_2    {: RESULT = ", String "+next; :}
+func_params_2 ::= COMMA IDENT:id func_params_2:next    {: RESULT = ", String "+id+next; :}
             |                                       {: RESULT = ""; :}
 ;
-expr      ::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "((("+i2+").startsWith("+i1+"))?"+e1+":"+e2+")"; :}
+expr      ::= IFS LPAREN expr_temp2:i1 PREFIX expr_temp2:i2 RPAREN expr_temp2:e1 ELSE expr_temp2:e2     {: RESULT = "(("+i2+").startsWith("+i1+")?"+e1+":"+e2+")"; :}
 ;
 expr_temp2 ::= expr_temp2:e1 PLUS expr_temp2:e2	    {: RESULT = e1+"+"+e2; :}
             | item:i                                {: RESULT = ""+i; :}
@@ -97,7 +96,7 @@ func_args_2 ::= COMMA item:ite func_args_2:next    {: RESULT = ", "+ite+next; :}
             | PLUS item:ite func_args_2:next       {: RESULT = "+"+ite+next; :}
             |                                      {: RESULT = ""; :}
 ;
-expr_inside ::= IFS LPAREN expr_inside_temp2:i1 PREFIX expr_inside_temp2:i2 RPAREN expr_inside_temp2:e1 ELSE expr_inside_temp2:e2     {: RESULT = "((("+i2+").startsWith("+i1+"))?"+e1+":"+e2+")"; :}
+expr_inside ::= IFS LPAREN expr_inside_temp2:i1 PREFIX expr_inside_temp2:i2 RPAREN expr_inside_temp2:e1 ELSE expr_inside_temp2:e2     {: RESULT = "(("+i2+").startsWith("+i1+")?"+e1+":"+e2+")"; :}
 ;
 expr_inside_temp2 ::= expr_inside_temp2:e1 PLUS expr_inside_temp2:e2	    {: RESULT = e1+"+"+e2; :}
             | item_inside:i                                                 {: RESULT = ""+i; :}

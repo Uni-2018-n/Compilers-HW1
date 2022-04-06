@@ -1,0 +1,4 @@
+trythis(reverseme){
+if("a"+"b" prefix reverseme) reverse reverseme else "b"+"a"
+}
+trythis("ab" + reverse "ab")

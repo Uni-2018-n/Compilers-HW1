@@ -1,15 +1,3 @@
-helper(str, acc, i, n) {
-  if (i prefix n)
-    if (n prefix i)
-      acc
-    else
-      helper(str, acc + str, i + ".", n)
-  else
-    ""
+test(a,b,c,d,e){
+  ""
 }
-
-concat_n(str, n) {
-  helper(str, "", "", n)
-}
-
-concat_n("x", "....")
