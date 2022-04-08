@@ -35,7 +35,7 @@ class calculatorEvaluator {
 
     public int eval() throws IOException, ParseError {
         int value = Goal();
-        if(lookahead != '\n' && lookahead != -1){
+        if(lookahead != '\n' && lookahead != -1){//incase we didnt read all the input, throw parse error
             throwExp();
         }
         return value;
@@ -54,7 +54,6 @@ class calculatorEvaluator {
 
     private int Term() throws IOException, ParseError {
         int num = Num();
-        // System.err.println(num);
         int term2 = Term2(num);
         return term2;
     }
